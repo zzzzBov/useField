@@ -5,15 +5,18 @@ import {
 } from 'react'
 
 import {
+  createCleanAction,
+  createResetAction,
+  createSetAction,
+  createTouchAction
+} from './actions'
+
+import {
   Action,
   ActionTypes,
   FieldValidation,
-  ICleanAction,
   IFieldData,
   IFieldState,
-  IResetAction,
-  ISetAction,
-  ITouchAction,
   IValidators
 } from './types'
 
@@ -47,24 +50,6 @@ const fieldReducer = <Value>(state: IFieldState<Value>, action: Action<Value>): 
       return state
   }
 }
-
-const createCleanAction = (): ICleanAction => ({
-  type: ActionTypes.CLEAN
-})
-
-const createResetAction = <Value>(initial: Value): IResetAction<Value> => ({
-  payload: initial,
-  type: ActionTypes.RESET
-})
-
-const createSetAction = <Value>(value: Value): ISetAction<Value> => ({
-  payload: value,
-  type: ActionTypes.SET
-})
-
-const createTouchAction = (): ITouchAction => ({
-  type: ActionTypes.TOUCH
-})
 
 export const useField = <Value, Validators extends IValidators<Value>>(validators: Validators, initialValue: Value): IFieldData<Value, Validators> => {
   const [
