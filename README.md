@@ -4,6 +4,31 @@
 
 It's meant for simple forms with a few fields and limited field validation needs.
 
+## Contents
+
+ * [When _not_ to `useField`][when-not]
+ * [Installation][]
+ * [Usage][]
+ * [API][]
+    * [`useField(validators, initialValue)`][useField]
+       * [`validators`][]
+       * [`initialValue`][]
+       * [Return value][]
+          * [`clean()`][]
+          * [`dirty`][]
+          * [`error`][]
+          * [`reset()`][]
+          * [`set(value)`][]
+          * [`touch()`][]
+          * [`valid`][]
+          * [`validation`][]
+          * [`value`][]
+    * [Built-in validators][]
+       * [`matches(regex)`][matches]
+       * [`maxLength(length)`][maxLength]
+       * [`minLength(length)`][minLength]
+       * [`required`][required]
+
 ## When _not_ to `useField`
 
  * if your form has more than ~7 fields
@@ -106,11 +131,13 @@ The `initialValue` parameter specifies the initial value for the field before an
 
 #### Return value
 
-`useField` returns an `IFieldData` object with the following members:
+`useField` returns an object with the following members:
 
 ##### `clean()`
 
-The `clean` method marks the field as having been cleaned, which sets the `dirty` property to `false`, but does not otherwise change the current value.
+The `clean` method marks the field as having been cleaned, which sets the [`dirty`][] property to `false`, but does not otherwise change the current value.
+
+See also: [`dirty`][], [`reset()`][], and [`touch()`][]
 
 ##### `dirty`
 
@@ -119,32 +146,43 @@ Default: `false`
 
 The `dirty` property indicates whether the user has interacted with the field for purposes of displaying validation.
 
+See also: [`clean()`][], [`error`][], [`reset()`][], and [`touch()`][]
+
 ##### `error`
 
 Type: boolean
 
-The `error` property indicates whether the field is `dirty` and not `valid`.
+The `error` property indicates whether the field is [`dirty`][] and not [`valid`][].
+
+See also: [`dirty`][], and [`valid`][]
 
 ##### `reset()`
 
-The `reset` method sets the `value` property back to the originally provided `initialValue` and cleans the field (i.e. sets `dirty` to `false`).
+The `reset` method sets the [`value`][] property back to the originally provided [`initialValue`][] and cleans the field (i.e. sets [`dirty`][] to `false`).
+
+See also: [`clean()`][], [`dirty`][], [`set(value)`][], [`touch()`][], and [`value`][]
 
 ##### `set(value)`
 
-The `set` method sets the `value` property. It does _not_ mark the field as `dirty` so that displaying validation may be delayed until a user is done with the given field.
+The `set` method sets the [`value`][] property. It does _not_ mark the field as [`dirty`][] so that displaying validation may be delayed until a user is done with the given field.
+
+See also: [`reset()`][], and [`value`][]
 
 ##### `touch()`
 
-The `touch` method marks the field as `dirty`, and does not change the field `value`.
+The `touch` method marks the field as [`dirty`][], and does not change the field [`value`][].
+
+See also: [`clean()`][], [`dirty`][], and [`reset()`][]
 
 ##### `valid`
 
 Type: boolean
 
-The `valid` property indicates whether all of the provided validators are currently valid.
+The `valid` property indicates whether all of the provided [`validators`][] are currently valid.
+
+See also: [`validators`][]
 
 ##### `validation`
-
 
 Type: object
 
@@ -162,15 +200,17 @@ example.validation.numeric
 // after example.set('abc') becomes false
 ```
 
-##### `value`
+See also: [`validation`][]
 
-Default: see `initialValue`
+##### `value`
 
 The `value` property is the currently assigned field value.
 
-### Validators
+See also: [`initialValue`][], [`reset()`][], and [`set(value)`][]
 
-`useField` comes with a few built-in validator utilities which can be passed to the validators argument of `useField`.
+### Built-in validators
+
+`useField` comes with a few built-in validator utilities which can be passed to the [`validators`][] parameter of `useField`.
 
 #### `matches(regex)`
 
@@ -229,7 +269,7 @@ const example = useField({
 example.validation.min // false until the example field has a value that's at least 5 characters long
 ```
 
-### `required`
+#### `required`
 
 `required` is a validator function to verify that the current `value` is truthy (not `0`, `false`, `''`, `NaN`, `null`, or `undefined`).
 
@@ -246,3 +286,26 @@ const example = useField({
 
 example.validation.required // false until the example field has a value
 ```
+
+[when-not]: #when-not-to-usefield
+[Installation]: #installation
+[Usage]: #usage
+[API]: #api
+[useField]: #usefieldvalidators-initialvalue
+[`validators`]: #validators
+[`initialValue`]: #initialvalue
+[Return value]: #return-value
+[`clean()`]: #clean
+[`dirty`]: #dirty
+[`error`]: #error
+[`reset()`]: #reset
+[`set(value)`]: #setvalue
+[`touch()`]: #touch
+[`valid`]: #valid
+[`validation`]: #validation
+[`value`]: #value
+[Built-in Validators]: #built-in-validators
+[matches]: #matchesregex
+[maxLength]: #maxlengthlength
+[minLength]: #minlengthlength
+[required]: #required
