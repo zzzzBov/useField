@@ -1,5 +1,5 @@
-import { IValidators } from './IValidators'
+import { IValidators } from './IValidators';
 
 export type FieldValidation<Value, Validators extends IValidators<Value>> = {
-  [V in keyof Validators]: boolean
-}
+  [V in keyof Validators]: boolean;
+};

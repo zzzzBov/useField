@@ -1,1 +1,1 @@
-export * from './fieldReducer'
+export * from './fieldReducer';

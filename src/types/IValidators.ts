@@ -1,3 +1,3 @@
 export interface IValidators<Value> {
-  [validator: string]: (value: Value) => boolean
+  [validator: string]: (value: Value) => boolean;
 }

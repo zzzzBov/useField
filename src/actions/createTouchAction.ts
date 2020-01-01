@@ -1,8 +1,5 @@
-import {
-  ActionTypes,
-  ITouchAction
-} from '../types'
+import { ActionTypes, ITouchAction } from '../types';
 
 export const createTouchAction = (): ITouchAction => ({
-  type: ActionTypes.TOUCH
-})
+  type: ActionTypes.TOUCH,
+});
