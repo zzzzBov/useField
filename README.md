@@ -1,167 +1,248 @@
-# TSDX React User Guide
+# `useField` react hook
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+`useField` is a react hook for managing synchronous field validation alongside state.
 
-> This TSDX setup is meant for developing React components (not apps!) that can be published to NPM. If you’re looking to build an app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+It's meant for simple forms with a few fields and limited field validation needs.
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+## When _not_ to `useField`
 
-## Commands
+ * if your form has more than ~7 fields
+ * if you need asynchronous field validation
+ * if you want to manage validation on complex data structures
 
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
+## Installation
 
-The recommended workflow is to run TSDX in one terminal:
-
-```bash
-npm start # or yarn start
+```
+npm install @zzzzbov/usefield
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+## Usage
 
-Then run the example inside another:
+```jsx
+import React, { useCallback } from 'react'
+import { useField, required } from '@zzzzbov/usefield'
 
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
-```
+const form = ({
+  onSubmit
+}) => {
+  const username = useField({
+    required
+  }, '')
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, [we use Parcel's aliasing](https://github.com/palmerhq/tsdx/pull/88/files).
+  const password = useField({
+    required
+  }, '')
 
-To do a one-off build, use `npm run build` or `yarn build`.
+  const internalSubmit = useCallback((e) => {
+    e.preventDefault()
 
-To run tests, use `npm test` or `yarn test`.
+    username.touch()
+    password.touch()
 
-## Configuration
+    if (username.valid && password.valid) {
+      onSubmit(username.value, password.value)
+    }
+  }, [username, password])
 
-Code quality is [set up for you](https://github.com/palmerhq/tsdx/pull/45/files) with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`. This runs the test watcher (Jest) in an interactive mode. By default, runs tests related to files changed since the last commit.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```shell
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
-
-#### React Testing Library
-
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
-
-### Rollup
-
-TSDX uses [Rollup v1.x](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
-
-### TypeScript
-
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
-
-## Continuous Integration
-
-### Travis
-
-_to be completed_
-
-### Circle
-
-_to be completed_
-
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+  return (
+    <form onSubmit={internalSubmit} method='POST'>
+      <h1>Log In</h1>
+      <div>
+        <label for='username'>Username:</label>
+        { username.error && (
+          <p id='username-error'>Username is required</p>
+        ) }
+        <input
+          className={username.error ? 'error' : ''}
+          id='username'
+          name='u'
+          text='text'
+          aria-describedby='username-error'
+          value={username.value}
+          onChange={e => username.set(e.target.value)}
+          onBlur={username.touch}
+        />
+      </div>
+      <div>
+        <label for='password'>Password:</label>
+        { password.error && (
+          <p id='password-error'>Password is required</p>
+        ) }
+        <input
+          className={password.error ? 'error' : ''}
+          id='password'
+          name='p'
+          text='password'
+          aria-describedby='password-error'
+          value={password.value}
+          onChange={e => password.set(e.target.value)}
+          onBlur={password.touch}
+        />
+      </div>
+      <input
+        type='submit'
+        value='Log In'
+      />
+    </form>
+  )
 }
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+## API
 
-## Module Formats
+### `useField(validators, initialValue)`
 
-CJS, ESModules, and UMD module formats are supported.
+The `useField` hook accepts a map of validators and an initial value and returns an object with the current value, utility methods, and validation state.
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+#### `validators`
 
-## Using the Playground
+The `validators` parameter is an object of functions to validate the field.
 
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
+Each validator takes a single parameter of the current value, and should return `true` when the provided value is valid, and `false` when the provided value is invalid.
+
+#### `initialValue`
+
+The `initialValue` parameter specifies the initial value for the field before any user interaction occurs. While the primary use-case for `useField` is for string values, any type may be used.
+
+#### Return value
+
+`useField` returns an `IFieldData` object with the following members:
+
+##### `clean()`
+
+The `clean` method marks the field as having been cleaned, which sets the `dirty` property to `false`, but does not otherwise change the current value.
+
+##### `dirty`
+
+Type: boolean  
+Default: `false`
+
+The `dirty` property indicates whether the user has interacted with the field for purposes of displaying validation.
+
+##### `error`
+
+Type: boolean
+
+The `error` property indicates whether the field is `dirty` and not `valid`.
+
+##### `reset()`
+
+The `reset` method sets the `value` property back to the originally provided `initialValue` and cleans the field (i.e. sets `dirty` to `false`).
+
+##### `set(value)`
+
+The `set` method sets the `value` property. It does _not_ mark the field as `dirty` so that displaying validation may be delayed until a user is done with the given field.
+
+##### `touch()`
+
+The `touch` method marks the field as `dirty`, and does not change the field `value`.
+
+##### `valid`
+
+Type: boolean
+
+The `valid` property indicates whether all of the provided validators are currently valid.
+
+##### `validation`
+
+
+Type: object
+
+The `validation` property is an object of the results from each of the provided `validators`.
+
+```jsx
+const example = useField({
+  numeric (value) {
+    return !isNaN(value)
+  }
+}, '')
+
+example.validation.numeric
+// after example.set('123') becomes true
+// after example.set('abc') becomes false
 ```
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**!
+##### `value`
 
-## Deploying the Playground
+Default: see `initialValue`
 
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
+The `value` property is the currently assigned field value.
 
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
+### Validators
+
+`useField` comes with a few built-in validator utilities which can be passed to the validators argument of `useField`.
+
+#### `matches(regex)`
+
+`matches` creates a validator function to match the current `value` against a provided regular expression.
+
+Usage:
+
+```jsx
+import { useField, matches } from '@zzzzbov/usefield'
+
+...
+
+const example = useField({
+  lowercase: matches(/a-z/),
+  uppercase: matches(/A-Z/)
+}, '')
+
+example.validation.lowercase // false until the example field has a value that contains a lower case character
+
+example.validation.uppercase // false until the example field has a value that contains an upper case character
 ```
 
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
+#### `maxLength(length)`
 
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
+`maxLength` creates a validator function to verify that the current `value` is no longer than the provided length.
+
+Usage:
+
+```jsx
+import { useField, maxLength } from '@zzzzbov/usefield'
+
+...
+
+const example = useField({
+  max: maxLength(20)
+}, '')
+
+example.validation.max // true until the example field has a value longer than 20 characters
 ```
 
-## Named Exports
+#### `minLength(length)`
 
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
+`minLength` creates a validator function to verify that the current `value` is at least as long as the provided length.
 
-## Including Styles
+Usage:
 
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
+```jsx
+import { useField, minLength } from '@zzzzbov/usefield'
 
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
+...
 
-## Publishing to NPM
+const example = useField({
+  min: minLength(5)
+}, '')
 
-We recommend using [np](https://github.com/sindresorhus/np).
-
-## Usage with Lerna
-
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
+example.validation.min // false until the example field has a value that's at least 5 characters long
 ```
 
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)
+### `required`
+
+`required` is a validator function to verify that the current `value` is truthy (not `0`, `false`, `''`, `NaN`, `null`, or `undefined`).
+
+Usage:
+
+```jsx
+import { useField, required } from '@zzzzbov/usefield'
+
+...
+
+const example = useField({
+  required
+}, '')
+
+example.validation.required // false until the example field has a value
+```
