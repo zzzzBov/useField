@@ -52,7 +52,7 @@ import { useField, required } from '@zzzzbov/usefield'
 
 // `useField` can be used within any react control.
 // This one is an example login form.
-const LogInForm = ({
+export const LogInForm = ({
   // The onSubmit property here is used as an example to externalize the
   // submitted form data. This is done to keep the example brief but is not
   // strictly necessary.
@@ -88,7 +88,7 @@ const LogInForm = ({
       // This example uses an onSubmit property to keep things simple.
       onSubmit(username.value, password.value)
     }
-  }, [username, password])
+  }, [onSubmit, username, password])
 
   return (
     <form
@@ -98,8 +98,8 @@ const LogInForm = ({
       // submission behaviors, such as implicit form submission.
       onSubmit={internalSubmit}>
       <h1>Log In</h1>
-      <div>
-        <label for='username'>Username:</label>
+      <div className='Field'>
+        <label htmlFor='username'>Username:</label>
         {/*
           Display an error message to the user.
           
@@ -128,7 +128,7 @@ const LogInForm = ({
           className={username.error ? 'error' : ''}
           id='username'
           name='u'
-          text='text'
+          type='text'
           aria-describedby='username-error'
 
           // Pass the current value to the field
@@ -149,8 +149,8 @@ const LogInForm = ({
           onBlur={username.touch}
         />
       </div>
-      <div>
-        <label for='password'>Password:</label>
+      <div className='Field'>
+        <label htmlFor='password'>Password:</label>
         { password.error && (
           <p id='password-error'>Password is required</p>
         ) }
@@ -158,7 +158,7 @@ const LogInForm = ({
           className={password.error ? 'error' : ''}
           id='password'
           name='p'
-          text='password'
+          type='password'
           aria-describedby='password-error'
           value={password.value}
           onChange={e => password.set(e.target.value)}
@@ -175,10 +175,9 @@ const LogInForm = ({
           password.reset()
         }}
       */}
-      <input
-        type='submit'
-        value='Log In'
-      />
+      <button type='submit'>
+        Log In
+      </button>
     </form>
   )
 }
