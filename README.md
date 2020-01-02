@@ -183,6 +183,8 @@ export const LogInForm = ({
 }
 ```
 
+Visit <https://zzzzbov.github.io/useField-demo/> for a live demo.
+
 ## API
 
 ### `useField(validators, initialValue)`
