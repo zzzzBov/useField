@@ -1,4 +1,6 @@
 {
+  "homepage": "https://github.com/zzzzBov/useField#readme",
+  "bugs": "https://github.com/zzzzBov/useField/issues",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
